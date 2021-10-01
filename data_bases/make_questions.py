@@ -69,19 +69,14 @@ for i2 in range(26):
                 if (find_txt[i] == "<"):
                     if (i != open_br + 1):
                         task_ti_write += find_txt[open_br + 1:i] + "\n"
-            # текст
-            text_txt = task.find_all("tr")
-            if text_txt != []:
-                text_txt = text_txt[0].find_all("td")
-                text_txt = text_txt[0].find_all("i")
-                if (text_txt != []):
-                    text_txt = str(text_txt[0].text)
-                    text_txt.replace("&lt", "<")
-                    text_txt.replace("&gt", ">")
-                else:
-                    text_txt = ""
-            else:
-                text_txt = ""
+
+            #доп.текст
+            text2_ans = ""
+            text2_txt = task.select(".probtext")
+            if (text2_txt != []):
+                for i in text2_txt[0].select("p"):
+                    text2_ans += i.text
+                    break;
             # ответ
             answer = task.select(".answer")
             raw_ans = answer[0].text
@@ -104,7 +99,7 @@ for i2 in range(26):
                 if (find1_txt[i] == "<"):
                     if (i != open_br + 1):
                         exp_ti_write += find1_txt[open_br + 1:i] + "\n"
-            add_to_base = (id, i2, task_ti_write, text_txt, exp_ti_write, ans_list[0], ans_list[1], ans_list[2], ans_list[3], ans_list[4], ans_list[5], ans_list[6], ans_list[7], ans_list[8], ans_list[9])
+            add_to_base = (id, i2, task_ti_write, text2_ans, exp_ti_write, ans_list[0], ans_list[1], ans_list[2], ans_list[3], ans_list[4], ans_list[5], ans_list[6], ans_list[7], ans_list[8], ans_list[9])
             print(add_to_base)
             cur.execute("INSERT INTO tasks VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", add_to_base)
             conn.commit()
