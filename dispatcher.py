@@ -1,4 +1,5 @@
 import logging
+import re
 from aiogram import *
 from filters import *
 import config
@@ -33,12 +34,23 @@ async def send_welcome(message: types.Message):
 @dp.message_handler(commands=['random'])
 async def send_welcome(message: types.Message):
     cond = random_condition()
-    if (len(cond) == 1):
-        await message.answer(cond[0])
-    else:
-        await message.answer(cond[0])
-        await message.answer("Текст:")
-        await message.answer(cond[1])
+    for i in cond:
+        await message.answer(i)
+
+@dp.message_handler(commands=['theme'])
+async def send_welcome(message: types.Message):
+    msg = message.text
+    theme_num = re.search('\d{1,}', msg)
+    if (theme_num == None):
+        await message.answer("Try again!")
+        return
+    theme_num = int(theme_num[0]) - 1
+    if not (theme_num >= 0 and theme_num <= 25):
+        await message.answer("Try again!")
+        return
+    cond = theme_condition(theme_num)
+    for i in cond:
+        await message.answer(i)
 
 @dp.message_handler(commands=['id'])
 async def send_welcome(message: types.Message):
@@ -51,14 +63,20 @@ async def send_welcome(message: types.Message):
     else:
         await message.reply("Ops! You don't have permission to use this command((")
 
-#tmp command
-
-@dp.message_handler(commands=['double'])
-async def send_welcome(message: types.Message):
-    value = message.text
-    await message.answer(value)
-
 @dp.message_handler()
 async def send_welcome(message: types.Message):
     if message.text[0] == "/":
         await message.answer("I don't know this command)\nYou can use /help")
+
+#tmp command
+
+"""
+@dp.message_handler(commands=['double'])
+async def send_welcome(message: types.Message):
+    value = message.text[8:]
+    res = re.search('\d{1,}', value)
+    if (res == None):
+        await message.answer("Try again!")
+    else:
+        await message.answer(int(res[0]) * 2)
+"""
