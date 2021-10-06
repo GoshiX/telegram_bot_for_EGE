@@ -1,5 +1,8 @@
 import logging
 import re
+from aiogram.dispatcher.filters.state import State, StatesGroup
+from aiogram.dispatcher import FSMContext
+from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram import *
 from filters import *
 import config
@@ -18,14 +21,30 @@ if not config.BOT_TOKEN:
 
 # init
 bot = Bot(token=config.BOT_TOKEN, parse_mode="HTML")
-dp = Dispatcher(bot)
+dp = Dispatcher(bot, storage=MemoryStorage())
 
 # activate filters
 dp.filters_factory.bind(IsOwnerFilter)
 dp.filters_factory.bind(IsAdminFilter)
 dp.filters_factory.bind(MemberCanRestrictFilter)
 
+class Mydialog(StatesGroup):
+    waiting_ans = State()
+    ans = []
+
 # дописать помощь + приветствие
+
+@dp.message_handler(state = Mydialog.waiting_ans)
+async def process_message(message: types.Message, state: FSMContext):
+    right = False
+    for i in Mydialog.ans:
+        if (message.text == i):
+            right = True
+    if (right):
+        await message.answer("Молодец!\nВсё правильно")
+    else:
+        await message.answer("Ты ошибся((")
+    await state.finish()
 
 @dp.message_handler(commands=['start', 'help'])
 async def send_welcome(message: types.Message):
@@ -33,9 +52,11 @@ async def send_welcome(message: types.Message):
 
 @dp.message_handler(commands=['random'])
 async def send_welcome(message: types.Message):
-    cond = random_condition()
+    cond, answer = random_condition()
     for i in cond:
         await message.answer(i)
+    await Mydialog.waiting_ans.set()
+    Mydialog.ans = answer
 
 @dp.message_handler(commands=['theme'])
 async def send_welcome(message: types.Message):
@@ -48,9 +69,11 @@ async def send_welcome(message: types.Message):
     if not (theme_num >= 0 and theme_num <= 25):
         await message.answer("Try again!")
         return
-    cond = theme_condition(theme_num)
+    cond, answer = theme_condition(theme_num)
     for i in cond:
         await message.answer(i)
+    await Mydialog.waiting_ans.set()
+    Mydialog.ans = answer
 
 @dp.message_handler(commands=['id'])
 async def send_welcome(message: types.Message):
@@ -64,7 +87,7 @@ async def send_welcome(message: types.Message):
         await message.reply("Ops! You don't have permission to use this command((")
 
 @dp.message_handler()
-async def send_welcome(message: types.Message):
+async def not_coomand(message: types.Message):
     if message.text[0] == "/":
         await message.answer("I don't know this command)\nYou can use /help")
 
