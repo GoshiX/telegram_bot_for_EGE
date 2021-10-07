@@ -32,19 +32,10 @@ class Mydialog(StatesGroup):
     waiting_ans = State()
     ans = []
 
-# дописать помощь + приветствие
+class explanation(StatesGroup):
+    exp_out = ""
 
-@dp.message_handler(state = Mydialog.waiting_ans)
-async def process_message(message: types.Message, state: FSMContext):
-    right = False
-    for i in Mydialog.ans:
-        if (message.text == i):
-            right = True
-    if (right):
-        await message.answer("Молодец!\nВсё правильно")
-    else:
-        await message.answer("Ты ошибся((")
-    await state.finish()
+# дописать помощь + приветствие
 
 @dp.message_handler(commands=['start', 'help'])
 async def send_welcome(message: types.Message):
@@ -52,7 +43,7 @@ async def send_welcome(message: types.Message):
 
 @dp.message_handler(commands=['random'])
 async def send_welcome(message: types.Message):
-    cond, answer = random_condition()
+    cond, answer, explanation.exp_out = random_condition()
     for i in cond:
         await message.answer(i)
     await Mydialog.waiting_ans.set()
@@ -69,7 +60,7 @@ async def send_welcome(message: types.Message):
     if not (theme_num >= 0 and theme_num <= 25):
         await message.answer("Try again!")
         return
-    cond, answer = theme_condition(theme_num)
+    cond, answer, explanation.exp_out = theme_condition(theme_num)
     for i in cond:
         await message.answer(i)
     await Mydialog.waiting_ans.set()
@@ -86,20 +77,25 @@ async def send_welcome(message: types.Message):
     else:
         await message.reply("Ops! You don't have permission to use this command((")
 
+@dp.message_handler(state = Mydialog.waiting_ans)
+async def process_message(message: types.Message, state: FSMContext):
+    await state.finish()
+    right = False
+    for i in Mydialog.ans:
+        if (message.text == i):
+            right = True
+    keyboard = types.InlineKeyboardMarkup()
+    keyboard.add(types.InlineKeyboardButton(text="Нажми меня", callback_data="random_value"))
+    if (right):
+        await message.answer("Молодец!\nВсё правильно", reply_markup=keyboard)
+    else:
+        await message.answer("Ты ошибся((", reply_markup=keyboard)
+
+@dp.callback_query_handler(text="random_value")
+async def send_random_value(call: types.CallbackQuery):
+    await call.message.answer(explanation.exp_out)
+
 @dp.message_handler()
 async def not_coomand(message: types.Message):
     if message.text[0] == "/":
         await message.answer("I don't know this command)\nYou can use /help")
-
-#tmp command
-
-"""
-@dp.message_handler(commands=['double'])
-async def send_welcome(message: types.Message):
-    value = message.text[8:]
-    res = re.search('\d{1,}', value)
-    if (res == None):
-        await message.answer("Try again!")
-    else:
-        await message.answer(int(res[0]) * 2)
-"""

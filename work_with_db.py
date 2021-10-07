@@ -63,7 +63,7 @@ def random_condition():
         ret.append("Текст:")
         ret.append(QUESTION[num].text)
     ret.append("---\nВопрос №" + str(QUESTION[num].id))
-    return ret, [QUESTION[num].ans1, QUESTION[num].ans2, QUESTION[num].ans3, QUESTION[num].ans4, QUESTION[num].ans5, QUESTION[num].ans6, QUESTION[num].ans7, QUESTION[num].ans8, QUESTION[num].ans9, QUESTION[num].ans10]
+    return [ret, [QUESTION[num].ans1, QUESTION[num].ans2, QUESTION[num].ans3, QUESTION[num].ans4, QUESTION[num].ans5, QUESTION[num].ans6, QUESTION[num].ans7, QUESTION[num].ans8, QUESTION[num].ans9, QUESTION[num].ans10], QUESTION[num].explanation]
 
 def theme_condition(theme_num):
     ret = list()
@@ -74,4 +74,4 @@ def theme_condition(theme_num):
         ret.append("Текст:")
         ret.append(quest.text)
     ret.append("---\nВопрос №" + str(quest.id))
-    return ret, [quest.ans1, quest.ans2, quest.ans3, quest.ans4, quest.ans5, quest.ans6, quest.ans7, quest.ans8, quest.ans9, quest.ans10]
+    return [ret, [quest.ans1, quest.ans2, quest.ans3, quest.ans4, quest.ans5, quest.ans6, quest.ans7, quest.ans8, quest.ans9, quest.ans10], quest.explanation]
