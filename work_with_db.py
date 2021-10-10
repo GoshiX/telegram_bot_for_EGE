@@ -4,6 +4,9 @@ import random
 conn = connect("data_bases/tasks.db")
 cur = conn.cursor()
 
+conn1 = connect("users.db")
+cur1 = conn1.cursor()
+
 class ques:
     id = 0
     tasktheme = 0
@@ -75,3 +78,11 @@ def theme_condition(theme_num):
         ret.append(quest.text)
     ret.append("---\nВопрос №" + str(quest.id))
     return [ret, [quest.ans1, quest.ans2, quest.ans3, quest.ans4, quest.ans5, quest.ans6, quest.ans7, quest.ans8, quest.ans9, quest.ans10], quest.explanation]
+
+def login(id):
+    try:
+        sql = "INSERT INTO users (user_id) VALUES(" + str(id) + ")"
+        cur1.execute(sql)
+    except IntegrityError:
+        pass
+    conn1.commit()

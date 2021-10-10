@@ -40,7 +40,7 @@ cur.execute("""CREATE TABLE IF NOT EXISTS tasks(
    ans6 TEXT, 
    ans7 TEXT, 
    ans8 TEXT, 
-   ans9 TEXT, 
+   ans9 TEXT, corre
    ans10 TEXT);
 """)
 conn.commit()

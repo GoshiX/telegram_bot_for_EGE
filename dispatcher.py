@@ -37,7 +37,12 @@ class explanation(StatesGroup):
 
 # дописать помощь + приветствие
 
-@dp.message_handler(commands=['start', 'help'])
+@dp.message_handler(commands=['start'])
+async def send_welcome(message: types.Message):
+    login(message.from_user.id)
+    await message.reply("Hi!\nI'm Tester bot!\nMade by GoshiX.")
+
+@dp.message_handler(commands=['help'])
 async def send_welcome(message: types.Message):
     await message.reply("Hi!\nI'm Tester bot!\nMade by GoshiX.")
 
