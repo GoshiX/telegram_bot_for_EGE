@@ -109,7 +109,7 @@ def get_explain(id):
     sql = "SELECT last_question FROM users WHERE user_id == " + id
     cur1.execute(sql)
     txt = cur1.fetchone()[0]
-    return text_to_list(txt)
+    return text_to_list(QUESTION[txt].explanation)
 
 def login(id):
     try:
@@ -118,3 +118,24 @@ def login(id):
     except IntegrityError:
         pass
     conn1.commit()
+
+def if_ans(id):
+    sql = "SELECT check_ans FROM users WHERE user_id == " + id
+    cur1.execute(sql)
+    txt = cur1.fetchone()[0]
+    return txt
+
+def check_ans(id, ans):
+    sql = "UPDATE users SET check_ans = 0 WHERE user_id == " + id
+    cur1.execute(sql)
+    conn1.commit()
+    ans = ans.lower()
+    sql = "SELECT last_question FROM users WHERE user_id == " + id
+    cur1.execute(sql)
+    txt = cur1.fetchone()[0]
+    correct = [QUESTION[int(txt)].ans1, QUESTION[int(txt)].ans2, QUESTION[int(txt)].ans3, QUESTION[int(txt)].ans4, QUESTION[int(txt)].ans5, QUESTION[int(txt)].ans6, QUESTION[int(txt)].ans7, QUESTION[int(txt)].ans8, QUESTION[int(txt)].ans9, QUESTION[int(txt)].ans10]
+    ret = False
+    for i in correct:
+        if (ans == i):
+            ret = True
+    return ret
