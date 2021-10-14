@@ -58,26 +58,58 @@ for i in range(QUESTION_NUM):
 for i in THEME_QUESTIONS:
     THEME_QUESTIONS_NUM.append(len(i))
 
-def random_condition():
+def text_to_list(text):
+    p = 4000
+    ret = list()
+    while (len(text) > 4000):
+        p+=1
+        if (text[p] == ' '):
+            ret.append(text[0:p])
+            text = text[p + 1:]
+            p = 4000
+    ret.append(text)
+    return ret
+
+def random_condition(id):
     ret = list()
     num = random.randint(0, QUESTION_NUM - 1)
+    #db
+    sql = "UPDATE users SET check_ans = 1, last_question = " + str(num) + " WHERE user_id = " + id
+    cur1.execute(sql)
+    conn1.commit()
+
     ret.append(QUESTION[num].condition)
     if (QUESTION[num].text != ""):
         ret.append("Текст:")
-        ret.append(QUESTION[num].text)
+        add = text_to_list(QUESTION[num].text)
+        for i in add:
+            ret.append(i)
     ret.append("---\nВопрос №" + str(QUESTION[num].id))
-    return [ret, [QUESTION[num].ans1, QUESTION[num].ans2, QUESTION[num].ans3, QUESTION[num].ans4, QUESTION[num].ans5, QUESTION[num].ans6, QUESTION[num].ans7, QUESTION[num].ans8, QUESTION[num].ans9, QUESTION[num].ans10], QUESTION[num].explanation]
+    return ret
 
-def theme_condition(theme_num):
+def theme_condition(theme_num, id):
     ret = list()
     num = random.randint(0, THEME_QUESTIONS_NUM[theme_num] - 1)
     quest = QUESTION[THEME_QUESTIONS[theme_num][num]]
     ret.append(quest.condition)
+    # db
+    sql = "UPDATE users SET check_ans = 1, last_question = " + str(quest.id - 1) + " WHERE user_id = " + id
+    cur1.execute(sql)
+    conn1.commit()
+
     if (quest.text != ""):
         ret.append("Текст:")
-        ret.append(quest.text)
+        add = text_to_list(quest.text)
+        for i in add:
+            ret.append(i)
     ret.append("---\nВопрос №" + str(quest.id))
-    return [ret, [quest.ans1, quest.ans2, quest.ans3, quest.ans4, quest.ans5, quest.ans6, quest.ans7, quest.ans8, quest.ans9, quest.ans10], quest.explanation]
+    return ret
+
+def get_explain(id):
+    sql = "SELECT last_question FROM users WHERE user_id == " + id
+    cur1.execute(sql)
+    txt = cur1.fetchone()[0]
+    return text_to_list(txt)
 
 def login(id):
     try:

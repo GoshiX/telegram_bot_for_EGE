@@ -20,7 +20,7 @@ if not config.BOT_TOKEN:
     exit("No token provided")
 
 # init
-bot = Bot(token=config.BOT_TOKEN, parse_mode="HTML")
+bot = Bot(token=config.BOT_TOKEN) #, parse_mode="HTML"
 dp = Dispatcher(bot, storage=MemoryStorage())
 
 # activate filters
@@ -28,19 +28,11 @@ dp.filters_factory.bind(IsOwnerFilter)
 dp.filters_factory.bind(IsAdminFilter)
 dp.filters_factory.bind(MemberCanRestrictFilter)
 
-class Mydialog(StatesGroup):
-    waiting_ans = State()
-    ans = []
-
-class explanation(StatesGroup):
-    exp_out = ""
-
-# дописать помощь + приветствие
 
 @dp.message_handler(commands=['start'])
 async def send_welcome(message: types.Message):
     login(message.from_user.id)
-    await message.reply("Hi!\nI'm Tester bot!\nMade by GoshiX.")
+    await message.reply("Добр пожаловать!\nЭтот бот создан для тренировки заданий из ЕГЭ по русскому языку.\nСоздатель: @goshanmorev")
 
 @dp.message_handler(commands=['help'])
 async def send_welcome(message: types.Message):
@@ -48,11 +40,9 @@ async def send_welcome(message: types.Message):
 
 @dp.message_handler(commands=['random'])
 async def send_welcome(message: types.Message):
-    cond, answer, explanation.exp_out = random_condition()
+    cond = random_condition(str(message.from_user.id))
     for i in cond:
         await message.answer(i)
-    await Mydialog.waiting_ans.set()
-    Mydialog.ans = answer
 
 @dp.message_handler(commands=['theme'])
 async def send_welcome(message: types.Message):
@@ -65,11 +55,9 @@ async def send_welcome(message: types.Message):
     if not (theme_num >= 0 and theme_num <= 25):
         await message.answer("Try again!")
         return
-    cond, answer, explanation.exp_out = theme_condition(theme_num)
+    cond = theme_condition(theme_num, str(message.from_user.id))
     for i in cond:
         await message.answer(i)
-    await Mydialog.waiting_ans.set()
-    Mydialog.ans = answer
 
 @dp.message_handler(commands=['id'])
 async def send_welcome(message: types.Message):
@@ -82,7 +70,15 @@ async def send_welcome(message: types.Message):
     else:
         await message.reply("Ops! You don't have permission to use this command((")
 
-@dp.message_handler(state = Mydialog.waiting_ans)
+@dp.callback_query_handler(text="random_value")
+async def send_random_value(message: types.Message, call: types.CallbackQuery):
+    msg = get_explain(str(message.from_user.id));
+    for i in msg:
+        await message.answer(i)
+
+#rewrite
+"""
+@dp.message_handler()
 async def process_message(message: types.Message, state: FSMContext):
     await state.finish()
     right = False
@@ -95,10 +91,9 @@ async def process_message(message: types.Message, state: FSMContext):
         await message.answer("Молодец!\nВсё правильно", reply_markup=keyboard)
     else:
         await message.answer("Ты ошибся((", reply_markup=keyboard)
+        
+"""
 
-@dp.callback_query_handler(text="random_value")
-async def send_random_value(call: types.CallbackQuery):
-    await call.message.answer(explanation.exp_out)
 
 @dp.message_handler()
 async def not_coomand(message: types.Message):
