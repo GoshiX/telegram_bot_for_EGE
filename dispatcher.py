@@ -122,7 +122,7 @@ async def not_coomand(message: types.Message):
         if str(if_ans(str(message.from_user.id))) == "1":
             correct = check_ans(str(message.from_user.id), message.text)
             keyboard = types.InlineKeyboardMarkup()
-            keyboard.add(types.InlineKeyboardButton(text="Объяснение + ответ", callback_data="random_value"))
+            keyboard.add(types.InlineKeyboardButton(text="Нажмите для объяснения + ответа", callback_data="random_value"))
             if (correct == True):
                 await message.answer("Молодец!\nВсё правильно", reply_markup=keyboard)
             else:
