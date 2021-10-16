@@ -139,3 +139,6 @@ def check_ans(id, ans):
         if (ans == i):
             ret = True
     return ret
+
+def give_admin(id):
+    sql = "UPDATE "

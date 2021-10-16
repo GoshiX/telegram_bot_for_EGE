@@ -38,7 +38,14 @@ async def send_welcome(message: types.Message):
 
 @dp.message_handler(commands=['help'])
 async def send_welcome(message: types.Message):
-    await message.reply("Список команд можно посмотреть рядом с полем ввода")
+    await message.reply("Список команд:\n"
+                        "random - Случайный вопрос 🎲\n"
+                        "r - Случайный вопрос 🎲\n"
+                        "theme - Вопрос по теме\n"
+                        "t - Вопрос по теме\n"
+                        "statistics - Ваша статистика\n"
+                        "s - Ваша статистика\n"
+                        "theme_list - Список тем")
 
 @dp.message_handler(commands=['random', 'r'])
 async def send_welcome(message: types.Message):
@@ -105,6 +112,10 @@ async def send_welcome(message: types.Message):
 async def send_welcome(message: types.Message):
     if (str(message.from_user.id) == str(config.BOT_OWNER)):
         await message.reply("You are owner!")
+        msg = message.text
+        admin_id = re.search('\d{1,}', msg)
+        if (admin_id != None):
+            give_admin(admin_id)
     else:
         await message.reply("Ops! You don't have permission to use this command((")
 
