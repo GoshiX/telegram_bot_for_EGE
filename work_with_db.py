@@ -74,10 +74,9 @@ def random_condition(id):
     ret = list()
     num = random.randint(0, QUESTION_NUM - 1)
     #db
-    sql = "UPDATE users SET check_ans = 1, last_question = " + str(num) + " WHERE user_id = " + id
+    sql = "UPDATE users SET check_ans = 1, last_question = " + str(num) + ", last_question_theme = " + str(QUESTION[num].tasktheme) + " WHERE user_id = " + id
     cur1.execute(sql)
     conn1.commit()
-
     ret.append(QUESTION[num].condition)
     if (QUESTION[num].text != ""):
         ret.append("Текст:")
@@ -93,10 +92,9 @@ def theme_condition(theme_num, id):
     quest = QUESTION[THEME_QUESTIONS[theme_num][num]]
     ret.append(quest.condition)
     # db
-    sql = "UPDATE users SET check_ans = 1, last_question = " + str(quest.id - 1) + " WHERE user_id = " + id
+    sql = "UPDATE users SET check_ans = 1, last_question = " + str(quest.id - 1) + ", last_question_theme = " + str(theme_num) + "  WHERE user_id = " + id
     cur1.execute(sql)
     conn1.commit()
-
     if (quest.text != ""):
         ret.append("Текст:")
         add = text_to_list(quest.text)
@@ -141,4 +139,50 @@ def check_ans(id, ans):
     return ret
 
 def give_admin(id):
-    sql = "UPDATE "
+    sql = "UPDATE users SET user_admin = 1 WHERE user_id == " + id
+    cur1.execute(sql)
+    conn1.commit()
+
+def check_admin(id):
+    sql = "SELECT user_admin FROM users WHERE user_id == " + id
+    cur1.execute(sql)
+    txt = cur1.fetchone()[0]
+    if (txt == 1):
+        return True
+    else:
+        return False
+
+def add_stat(id, right):
+    sql = "SELECT last_question_theme FROM users WHERE user_id == " + id
+    cur1.execute(sql)
+    theme = str(cur1.fetchone()[0] + 1)
+    sql = "SELECT total_solve_" + theme + ", correct_solve_" + theme + " FROM users WHERE user_id == " + id
+    cur1.execute(sql)
+    info = cur1.fetchone()
+    if (right):
+        sql = "UPDATE users SET total_solve_" + theme + " = " + str(info[0] + 1) + ", correct_solve_" + theme + " = " + str(info[1] + 1) + " WHERE user_id == " + id
+    else:
+        sql = "UPDATE users SET total_solve_" + theme + " = " + str(info[0] + 1) + " WHERE user_id == " + id
+    cur1.execute(sql)
+    conn1.commit()
+
+def ret_stat(id):
+    sql = "SELECT id FROM users WHERE user_id == " + id
+    cur1.execute(sql)
+    exist = cur1.fetchone()
+    if (exist == None):
+        return "Пользователь с таким id не пользуется этим ботом."
+    msg = "Ваша статистика:"
+    for i in range(1, 27):
+        msg += "\n"
+        msg += str(i) + " тема - "
+        sql = "SELECT total_solve_" + str(i) + ", correct_solve_" + str(i) + " FROM users WHERE user_id == " + id
+        cur1.execute(sql)
+        info = cur1.fetchone()
+        msg += str(info[1]) + "/" + str(info[0]) + " "
+        if (info[0] == 0):
+            msg += "??.??%"
+        else:
+            pr = info[1] / info[0] * 100
+            msg += str("%.2f" % pr) + "%"
+    return msg

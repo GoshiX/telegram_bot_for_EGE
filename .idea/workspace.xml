@@ -191,9 +191,9 @@
       <method v="2" />
     </configuration>
     <list>
-      <item itemvalue="Python.bot" />
       <item itemvalue="Python.main" />
       <item itemvalue="Python.make_questions" />
+      <item itemvalue="Python.bot" />
       <item itemvalue="Python.make_users_bd_structure" />
       <item itemvalue="Python.temp" />
       <item itemvalue="Python.tmp2" />

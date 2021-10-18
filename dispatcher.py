@@ -84,7 +84,17 @@ async def send_welcome(message: types.Message):
 
 @dp.message_handler(commands=['statistics', 's'])
 async def send_welcome(message: types.Message):
-    await message.answer("Ждите следующую версию бота))")
+    await message.answer(ret_stat(str(message.from_user.id)))
+
+@dp.message_handler(commands=['user_info'])
+async def send_welcome(message: types.Message):
+    msg = message.text
+    user_id = re.search('\d{1,}', msg)
+    if (str(message.from_user.id) == str(config.BOT_OWNER) or check_admin(str(message.from_user.id))):
+        if (user_id != None):
+            await message.answer(ret_stat(str(int(user_id[0]))))
+    else:
+        await message.reply("Ops! You don't have permission to use this command((")
 
 @dp.message_handler(commands=['theme', 't'])
 async def send_welcome(message: types.Message):
@@ -110,12 +120,13 @@ async def send_welcome(message: types.Message):
 
 @dp.message_handler(commands=['admin'])
 async def send_welcome(message: types.Message):
-    if (str(message.from_user.id) == str(config.BOT_OWNER)):
+    msg = message.text
+    admin_id = re.search('\d{1,}', msg)
+    if (str(message.from_user.id) == str(config.BOT_OWNER) or check_admin(str(message.from_user.id))):
         await message.reply("You are owner!")
-        msg = message.text
-        admin_id = re.search('\d{1,}', msg)
         if (admin_id != None):
-            give_admin(admin_id)
+            give_admin(str(int(admin_id[0])))
+            await message.reply("Ок")
     else:
         await message.reply("Ops! You don't have permission to use this command((")
 
@@ -134,6 +145,7 @@ async def not_coomand(message: types.Message):
             correct = check_ans(str(message.from_user.id), message.text)
             keyboard = types.InlineKeyboardMarkup()
             keyboard.add(types.InlineKeyboardButton(text="Нажмите для объяснения + ответа", callback_data="random_value"))
+            add_stat(str(message.from_user.id), correct)
             if (correct == True):
                 await message.answer("Молодец!\nВсё правильно", reply_markup=keyboard)
             else:
