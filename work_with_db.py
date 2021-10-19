@@ -74,7 +74,7 @@ def random_condition(id):
     ret = list()
     num = random.randint(0, QUESTION_NUM - 1)
     #db
-    sql = "UPDATE users SET check_ans = 1, last_question = " + str(num) + ", last_question_theme = " + str(QUESTION[num].tasktheme) + " WHERE user_id = " + id
+    sql = "UPDATE users SET last_question_random = 1, check_ans = 1, last_question = " + str(num) + ", last_question_theme = " + str(QUESTION[num].tasktheme) + " WHERE user_id = " + id
     cur1.execute(sql)
     conn1.commit()
     ret.append(QUESTION[num].condition)
@@ -92,7 +92,7 @@ def theme_condition(theme_num, id):
     quest = QUESTION[THEME_QUESTIONS[theme_num][num]]
     ret.append(quest.condition)
     # db
-    sql = "UPDATE users SET check_ans = 1, last_question = " + str(quest.id - 1) + ", last_question_theme = " + str(theme_num) + "  WHERE user_id = " + id
+    sql = "UPDATE users SET last_question_random = 0, check_ans = 1, last_question = " + str(quest.id - 1) + ", last_question_theme = " + str(theme_num) + "  WHERE user_id = " + id
     cur1.execute(sql)
     conn1.commit()
     if (quest.text != ""):
@@ -119,6 +119,22 @@ def login(id):
 
 def if_ans(id):
     sql = "SELECT check_ans FROM users WHERE user_id == " + id
+    cur1.execute(sql)
+    txt = cur1.fetchone()[0]
+    return txt
+
+def wait_theme(id):
+    sql = "UPDATE users SET check_theme = 1 WHERE user_id == " + id
+    cur1.execute(sql)
+    conn1.commit()
+
+def not_wait_theme(id):
+    sql = "UPDATE users SET check_theme = 0 WHERE user_id == " + id
+    cur1.execute(sql)
+    conn1.commit()
+
+def if_theme(id):
+    sql = "SELECT check_theme FROM users WHERE user_id == " + id
     cur1.execute(sql)
     txt = cur1.fetchone()[0]
     return txt
@@ -179,10 +195,16 @@ def ret_stat(id):
         sql = "SELECT total_solve_" + str(i) + ", correct_solve_" + str(i) + " FROM users WHERE user_id == " + id
         cur1.execute(sql)
         info = cur1.fetchone()
-        msg += str(info[1]) + "/" + str(info[0]) + " "
+        msg += str(info[1]) + "/" + str(info[0]) + "      "
         if (info[0] == 0):
             msg += "??.??%"
         else:
             pr = info[1] / info[0] * 100
             msg += str("%.2f" % pr) + "%"
     return msg
+
+def rand_more(id):
+    sql = "SELECT last_question_random, last_question_theme FROM users WHERE user_id == " + id
+    cur1.execute(sql)
+    rand = cur1.fetchone()
+    return rand

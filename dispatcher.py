@@ -32,20 +32,22 @@ dp.filters_factory.bind(MemberCanRestrictFilter)
 @dp.message_handler(commands=['start'])
 async def send_welcome(message: types.Message):
     login(message.from_user.id)
-    await message.reply("Добр пожаловать!\nЭтот бот создан для тренировки заданий из ЕГЭ по русскому языку.\n"
-                        "Просите у бота вопрос, а затем введите ответ для его проверки\n"
+    await message.reply("Добро пожаловать!\nЭтот бот создан для тренировки заданий из ЕГЭ по русскому языку.📝\n"
+                        "Вы можете попросить бота выдать вам как случайный вопрос, так и вопрос по теме, после чего он проверит корректность введёного вами ответа.\n"
+                        "Помощь - /help\n"
                         "Создатель: @goshanmorev")
 
 @dp.message_handler(commands=['help'])
 async def send_welcome(message: types.Message):
-    await message.reply("Список команд:\n"
-                        "random - Случайный вопрос 🎲\n"
-                        "r - Случайный вопрос 🎲\n"
-                        "theme - Вопрос по теме\n"
-                        "t - Вопрос по теме\n"
-                        "statistics - Ваша статистика\n"
-                        "s - Ваша статистика\n"
-                        "theme_list - Список тем")
+    await message.reply("Список команд:\n\n"
+                        "/random - Случайный вопрос 🎲\n"
+                        "/r - Случайный вопрос 🎲\n\n"
+                        "/theme - Вопрос по теме❔\n"
+                        "/t - Вопрос по теме❔\n\n"
+                        "/statistics - Ваша статистика📈\n"
+                        "/s - Ваша статистика📈\n\n"
+                        "/theme_list - Список тем📋\n"
+                        "/id - Ваш id")
 
 @dp.message_handler(commands=['random', 'r'])
 async def send_welcome(message: types.Message):
@@ -101,8 +103,8 @@ async def send_welcome(message: types.Message):
     msg = message.text
     theme_num = re.search('\d{1,}', msg)
     if (theme_num == None):
-        await message.answer("Вам нужно ввести номер темы после запроса\n"
-                             "Список тем: /theme_list")
+        await message.answer("Введите номер темы.")
+        wait_theme(str(message.from_user.id))
         return
     theme_num = int(theme_num[0]) - 1
     if not (theme_num >= 0 and theme_num <= 25):
@@ -136,17 +138,47 @@ async def send_random_value(call: types.CallbackQuery):
     for i in viv:
         await call.message.answer(i)
 
+@dp.callback_query_handler(text="question_value")
+async def send_new_quest(call: types.CallbackQuery):
+    q = rand_more(str(call.from_user.id))
+    if (q[0] == True):
+        cond = random_condition(str(call.from_user.id))
+        for i in cond:
+            await call.message.answer(i)
+    else:
+        cond = theme_condition(q[1], str(call.from_user.id))
+        for i in cond:
+            await call.message.answer(i)
+
 @dp.message_handler()
 async def not_coomand(message: types.Message):
     if message.text[0] == "/":
         await message.answer("Я не знаю такой команды\nИспользуйте /help")
-    else:
-        if str(if_ans(str(message.from_user.id))) == "1":
+    elif if_theme(str(message.from_user.id)) == True:
+        msg = message.text
+        theme = re.search('\d{1,}', msg)
+        if theme == None:
+            await message.answer("Введите номер темы\n"
+                                 "Вот их список: /theme_list")
+            return
+        theme = int(theme[0])
+        theme -= 1
+        if not (theme >= 0 and theme <= 25):
+            await message.answer("Вы ввели некорректный номер темы.\n"
+                                 "Их всего 26.\n"
+                                 "Вот их список: /theme_list")
+            return
+        not_wait_theme(str(message.from_user.id))
+        cond = theme_condition(theme, str(message.from_user.id))
+        for i in cond:
+            await message.answer(i)
+    elif str(if_ans(str(message.from_user.id))) == "1":
             correct = check_ans(str(message.from_user.id), message.text)
             keyboard = types.InlineKeyboardMarkup()
             keyboard.add(types.InlineKeyboardButton(text="Нажмите для объяснения + ответа", callback_data="random_value"))
+            keyboard.add(types.InlineKeyboardButton(text="Ещё вопрос", callback_data="question_value"))
             add_stat(str(message.from_user.id), correct)
             if (correct == True):
-                await message.answer("Молодец!\nВсё правильно", reply_markup=keyboard)
+                await message.answer("Молодец!\nВсё правильно✔", reply_markup = keyboard)
             else:
-                await message.answer("Ты ошибся((", reply_markup=keyboard)
+                await message.answer("Ты ошибся((✖", reply_markup=keyboard)
