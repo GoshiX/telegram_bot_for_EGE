@@ -4,8 +4,6 @@ jobs:
   hello-linux:
     runs-on: ubuntu-latest
     steps:
-      - name: Hello
-        run: echo "Hello World"
       - name: Install the dependencies
         run: pip3 install pyinstaller
       - name: Check out repository code
@@ -19,9 +17,7 @@ jobs:
           path: dist/bot
   hello-windows:
     runs-on: windows-latest
-    steps:
-      - name: Hello
-        run: echo "Hello World"
+    steps: 
       - name: Install the dependencies
         run: pip3 install pyinstaller
       - name: Check out repository code
