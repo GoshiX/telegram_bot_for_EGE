@@ -1,0 +1,35 @@
+name: Hello World
+on: [push]
+jobs:
+  hello-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Hello
+        run: echo "Hello World"
+      - name: Install the dependencies
+        run: pip3 install pyinstaller
+      - name: Check out repository code
+        uses: actions/checkout@v2
+      - name: Build te executable
+        run: pyinstaller --windowed --onefile bot.py
+      - name: Upload bot-linux
+        uses: actions/upload-artifact@v2
+        with:
+          name: bot-linux
+          path: dist/bot
+  hello-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Hello
+        run: echo "Hello World"
+      - name: Install the dependencies
+        run: pip3 install pyinstaller
+      - name: Check out repository code
+        uses: actions/checkout@v2
+      - name: Build te executable
+        run: pyinstaller --windowed --onefile bot.py
+      - name: Upload bot-windows
+        uses: actions/upload-artifact@v2
+        with:
+          name: bot-windwos
+          path: dist/bot.exe
