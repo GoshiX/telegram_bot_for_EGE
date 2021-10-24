@@ -9,7 +9,7 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v2
       - name: Build te executable
-        run: pyinstaller --windowed --onefile bot.py
+        run: pyinstaller --windowed --onefile --hidden-import aiogram bot.py
       - name: Upload bot-linux
         uses: actions/upload-artifact@v2
         with:
@@ -23,7 +23,7 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v2
       - name: Build te executable
-        run: pyinstaller --windowed --onefile bot.py
+        run: pyinstaller --windowed --onefile --hidden-import aiogram bot.py
       - name: Upload bot-windows
         uses: actions/upload-artifact@v2
         with:
