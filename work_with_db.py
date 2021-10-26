@@ -74,7 +74,7 @@ def random_condition(id):
     ret = list()
     num = random.randint(0, QUESTION_NUM - 1)
     #db
-    sql = "UPDATE users SET last_question_random = 1, check_ans = 1, last_question = " + str(num) + ", last_question_theme = " + str(QUESTION[num].tasktheme) + " WHERE user_id = " + id
+    sql = "UPDATE users SET check_theme = 0, last_question_random = 1, check_ans = 1, last_question = " + str(num) + ", last_question_theme = " + str(QUESTION[num].tasktheme) + " WHERE user_id = " + id
     cur1.execute(sql)
     conn1.commit()
     ret.append(QUESTION[num].condition)
